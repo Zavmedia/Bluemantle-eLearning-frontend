@@ -7,7 +7,9 @@
       "status": "active",
       "batch": "Batch A",
       "attendance": 91.6,
-      "progress": 68
+      "progress": 68,
+      "registeredDeviceId": "DEV-MOCK-8821",
+      "lastLogin": "2026-04-26T10:00:00Z"
     },
     {
       "id": "STU-4482",

@@ -98,10 +98,19 @@ export default function CoursePlayerPage({ params }: { params: Promise<{ courseI
       {/* Main Content Area */}
       <div className="flex-1 flex overflow-hidden">
         {/* Video Player Section */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar bg-black flex flex-col">
+        <div className="flex-1 overflow-y-auto custom-scrollbar bg-black flex flex-col relative group">
+          {/* Dynamic Security Watermark */}
+          <div className="absolute top-1/4 left-1/4 pointer-events-none z-50 opacity-20 select-none animate-pulse">
+             <div className="bg-black/20 backdrop-blur-sm p-4 rounded-xl border border-white/10 rotate-[-15deg]">
+                <p className="text-[10px] font-bold text-white uppercase tracking-[0.2em] mb-1">Protected Content</p>
+                <p className="text-sm font-manrope font-bold text-white">User: John Doe (STU-8821)</p>
+                <p className="text-[8px] text-white/60 font-medium">john@bluemantle.com • {new Date().toLocaleDateString()}</p>
+             </div>
+          </div>
+
           <div className="flex-1 flex items-center justify-center relative">
              <iframe 
-                src={activeChapter.videoUrl} 
+                src={`${activeChapter.videoUrl}?modestbranding=1&rel=0&iv_load_policy=3&showinfo=0`} 
                 className="w-full h-full"
                 allowFullScreen
                 title={activeChapter.title}

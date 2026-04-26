@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { KnowledgeCard, CardHeader, CardBody } from "@/components/KnowledgeCard";
 import { cn } from "@/lib/utils";
+import { ShieldAlert } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -11,20 +12,42 @@ export default function LoginPage() {
 
   const [isOtpStep, setIsOtpStep] = useState(false);
   const [otp, setOtp] = useState("");
+  const [error, setError] = useState("");
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError("");
+
+    // Simulate device fingerprinting
+    const currentDeviceId = "DEV-MOCK-8821"; // In real app, use FingerprintJS
+    
+    // Fetch user data (mock)
+    const res = await fetch("/api/institutional");
+    const data = await res.json();
+    const student = data.students.find((s: any) => s.email === email || s.id === email);
+
     setTimeout(() => {
       setLoading(false);
-      setIsOtpStep(true); // Trigger OTP verification for "first login or new device"
-    }, 1000);
+      if (!student) {
+        setError("Invalid credentials or unauthorized account.");
+        return;
+      }
+
+      if (student.registeredDeviceId && student.registeredDeviceId !== currentDeviceId) {
+        setIsOtpStep(true); // New device detected
+      } else {
+        // Same device or first login
+        router.push("/student");
+      }
+    }, 1500);
   };
 
   const handleOtpVerify = (e: React.FormEvent) => {
      e.preventDefault();
      setLoading(true);
      setTimeout(() => {
+       // After OTP, we "register" the new device
        router.push("/student");
      }, 1000);
   };
@@ -48,6 +71,12 @@ export default function LoginPage() {
         </CardHeader>
         
         <CardBody>
+          {error && (
+            <div className="mb-6 p-4 bg-error/10 border border-error/20 rounded-xl text-error text-sm font-bold flex items-center gap-3 animate-shake">
+               <ShieldAlert className="w-5 h-5" />
+               {error}
+            </div>
+          )}
           {!isOtpStep ? (
             <form onSubmit={handleLogin} className="space-y-6">
               <div>
