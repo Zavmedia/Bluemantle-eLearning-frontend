@@ -40,18 +40,24 @@ export function SecurityGuard({ children }: { children: React.ReactNode }) {
       }
     };
 
-    // 4. DevTools Detection (Simple height/width check + Debugger)
+    // 4. DevTools Detection & Auto-Logout
     const detectDevTools = () => {
       const threshold = 160;
-      const widthThreshold = window.outerWidth - window.innerWidth > threshold;
-      const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+      const isDevToolsOpen = 
+        window.outerWidth - window.innerWidth > threshold || 
+        window.outerHeight - window.innerHeight > threshold;
       
-      if (widthThreshold || heightThreshold) {
-         // Some browsers trigger this on zoom, so we are cautious
-         // But for a "Premium Feel" we can blur
-         // setIsSecure(false);
+      if (isDevToolsOpen) {
+         setSecurityMessage("Security Policy: Developer tools detected. Logging out...");
+         setTimeout(() => {
+           localStorage.removeItem("bluemantle_session");
+           window.location.href = "/"; // Force hard redirect to login
+         }, 1500);
       }
     };
+
+    // Periodic check
+    const devToolsInterval = setInterval(detectDevTools, 2000);
 
     window.addEventListener("contextmenu", handleContextMenu);
     window.addEventListener("keydown", handleKeydown);
@@ -59,6 +65,7 @@ export function SecurityGuard({ children }: { children: React.ReactNode }) {
     window.addEventListener("resize", detectDevTools);
 
     return () => {
+      clearInterval(devToolsInterval);
       window.removeEventListener("contextmenu", handleContextMenu);
       window.removeEventListener("keydown", handleKeydown);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
