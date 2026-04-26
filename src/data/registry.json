@@ -14,7 +14,7 @@
       "name": "Julian Mayer",
       "status": "active",
       "batch": "Batch A",
-      "attendance": 96.0,
+      "attendance": 96,
       "progress": 42
     },
     {
@@ -43,8 +43,122 @@
     }
   ],
   "schedule": [
-    { "id": 1, "date": "Oct 25, 2026", "time": "10:00 AM", "teacher": "Sarah Chen", "batch": "Batch A", "topic": "Options Pricing Models" },
-    { "id": 2, "date": "Oct 26, 2026", "time": "02:00 PM", "teacher": "Sarah Chen", "batch": "Batch A", "topic": "Macroeconomics Recap" }
+    {
+      "id": 1,
+      "date": "Oct 25, 2026",
+      "time": "10:00 AM",
+      "teacher": "Sarah Chen",
+      "batch": "Batch A",
+      "topic": "Options Pricing Models"
+    },
+    {
+      "id": 2,
+      "date": "Oct 26, 2026",
+      "time": "02:00 PM",
+      "teacher": "Sarah Chen",
+      "batch": "Batch A",
+      "topic": "Macroeconomics Recap"
+    }
   ],
-  "appeals": []
+  "appeals": [],
+  "courseCatalog": [
+    {
+      "id": "course-1",
+      "title": "Advanced Technical Analysis",
+      "description": "Master the art of reading price action, volume, and indicators to predict market movements with high precision.",
+      "instructor": "Sarah Chen",
+      "thumbnail": "/course-ta.jpg",
+      "modules": [
+        {
+          "id": "mod-1",
+          "title": "Foundations of Price Action",
+          "chapters": [
+            {
+              "id": "ch-1-1",
+              "title": "Introduction to Candlestick Patterns",
+              "duration": "15:20",
+              "videoUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ"
+            },
+            {
+              "id": "ch-1-2",
+              "title": "Support and Resistance Dynamics",
+              "duration": "22:45",
+              "videoUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ"
+            },
+            {
+              "id": "ch-1-3",
+              "title": "Volume Analysis Principles",
+              "duration": "18:10",
+              "videoUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ"
+            },
+            {
+              "id": "ch-1777219942715",
+              "title": "New ChapterAdvanced Chart Patterns",
+              "duration": "00:00",
+              "videoUrl": "https://www.youtube.com/embed/"
+            }
+          ]
+        },
+        {
+          "id": "mod-2",
+          "title": "Complex Indicator Strategies",
+          "chapters": [
+            {
+              "id": "ch-2-1",
+              "title": "Divergence Trading with RSI",
+              "duration": "20:00",
+              "videoUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ"
+            },
+            {
+              "id": "ch-2-2",
+              "title": "MACD Zero-Line Crossover",
+              "duration": "25:30",
+              "videoUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ"
+            },
+            {
+              "id": "ch-2-3",
+              "title": "Bollinger Band Squeeze Plays",
+              "duration": "19:15",
+              "videoUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ"
+            },
+            {
+              "id": "ch-2-4",
+              "title": "Advanced Fibonacci Tools",
+              "duration": "30:00",
+              "videoUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "course-2",
+      "title": "Risk Management 101",
+      "description": "The most important skill for any trader. Learn how to protect your capital and manage your emotions.",
+      "instructor": "Sarah Chen",
+      "thumbnail": "/course-rm.jpg",
+      "modules": [
+        {
+          "id": "mod-rm-1",
+          "title": "Risk-to-Reward Ratios",
+          "chapters": [
+            {
+              "id": "ch-rm-1-1",
+              "title": "Calculating Position Size",
+              "duration": "12:00",
+              "videoUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "userProgress": {
+    "STU-8821": {
+      "course-1": {
+        "lastModuleId": "mod-2",
+        "lastChapterId": "ch-2-4"
+      }
+    }
+  }
 }

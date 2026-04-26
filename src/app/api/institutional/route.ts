@@ -34,6 +34,14 @@ export async function POST(request: Request) {
       serverDb.resolveAppeal(payload.appealId, payload.decision);
       return NextResponse.json({ success: true, message: "Appeal Resolved" });
 
+    case "updateProgress":
+      serverDb.updateProgress(payload.studentId, payload.courseId, payload.moduleId, payload.chapterId);
+      return NextResponse.json({ success: true, message: "Progress Updated" });
+
+    case "updateCatalog":
+      serverDb.updateCourseCatalog(payload.catalog);
+      return NextResponse.json({ success: true, message: "Catalog Updated" });
+
     default:
       return NextResponse.json({ success: false, message: "Invalid Action" }, { status: 400 });
   }

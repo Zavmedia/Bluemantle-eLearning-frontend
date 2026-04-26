@@ -1,6 +1,6 @@
 import { SidebarNavigation, UserRole } from "./SidebarNavigation";
 import { GlassHeader } from "./GlassHeader";
-import { UnicornBackground } from "./UnicornBackground";
+import { DNABackground } from "./DNABackground";
 import { DashboardAmbience } from "./DashboardAmbience";
 import { MarketHeartbeat } from "./MarketHeartbeat";
 
@@ -17,7 +17,7 @@ export function AppShell({
 }) {
   return (
     <div className="flex flex-col min-h-screen relative w-full overflow-hidden bg-surface/60">
-      <UnicornBackground />
+      <DNABackground />
       <DashboardAmbience />
       <MarketHeartbeat />
 

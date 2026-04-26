@@ -1,65 +1,89 @@
-import { KnowledgeCard, CardHeader, CardTitle, CardBody } from "@/components/KnowledgeCard";
-import { PlayCircle } from "lucide-react";
-import { db } from "@/lib/db";
+"use client";
 
-export default async function RecordedClassesPage() {
-  const data = await db.user.getStudentData();
-  const mainVideo = data.recordings[0];
-  const relatedVideos = data.recordings.slice(1);
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { KnowledgeCard, CardBody } from "@/components/KnowledgeCard";
+import { PlayCircle, Clock, BookOpen, ChevronRight } from "lucide-react";
+
+export default function CourseGallery() {
+  const [data, setData] = useState<any>(null);
+  const studentId = "STU-8821"; // In production, this would come from auth
+
+  useEffect(() => {
+    fetch("/api/institutional")
+      .then((res) => res.json())
+      .then((data) => setData(data));
+  }, []);
+
+  if (!data) return <div className="p-8 text-center animate-pulse">Loading Academy Library...</div>;
+
+  const catalog = data.courseCatalog || [];
+  const progressData = data.userProgress?.[studentId] || {};
 
   return (
-    <div className="space-y-8 pb-10">
-      <h1 className="text-4xl font-manrope font-bold tracking-tight mb-6">Recorded Classes</h1>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Main Player Area */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="aspect-video bg-black rounded-2xl overflow-hidden shadow-ambient relative flex items-center justify-center">
-            {/* Mock Youtube Embed */}
-            <PlayCircle className="w-20 h-20 text-white/50 hover:text-white transition-colors cursor-pointer" />
-            <div className="absolute top-4 left-4 bg-black/60 px-3 py-1 rounded-md text-white text-xs font-bold font-inter">
-              {mainVideo?.title}
-            </div>
-          </div>
-          
-          <KnowledgeCard>
-            <CardBody className="p-6">
-              <h2 className="text-2xl font-manrope font-bold mb-2">{mainVideo?.title}</h2>
-              <div className="flex gap-4 text-sm text-on_surface_variant mb-4">
-                <span>Instructor: {mainVideo?.instructor}</span>
-                <span>Recorded: {mainVideo?.date}</span>
-              </div>
-              <p className="text-on_surface">{mainVideo?.description}</p>
-            </CardBody>
-          </KnowledgeCard>
-        </div>
+    <div className="space-y-10 pb-20">
+      <header>
+        <h1 className="text-4xl font-manrope font-bold tracking-tight mb-2">Recorded Academy</h1>
+        <p className="text-on_surface_variant">Select a course to continue your learning journey.</p>
+      </header>
 
-        {/* Sidebar Playlist */}
-        <div className="space-y-6">
-          <KnowledgeCard className="bg-surface_container_low border-none">
-            <CardHeader><CardTitle>Course Playlist</CardTitle></CardHeader>
-            <CardBody className="space-y-4">
-              {data.recordings.map((rec) => {
-                const isPlaying = rec.id === mainVideo?.id;
-                return (
-                  <div key={rec.id} className={`flex gap-3 group cursor-pointer p-2 rounded-xl transition-colors ${isPlaying ? 'bg-primary/10 border border-primary/20' : 'hover:bg-surface_container_high'}`}>
-                    <div className="w-32 h-20 bg-surface_container_highest rounded-lg overflow-hidden relative flex-shrink-0">
-                      <PlayCircle className={`w-8 h-8 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 transition-colors ${isPlaying ? 'text-primary' : 'text-on_surface_variant group-hover:text-primary'}`} />
-                      <span className="absolute bottom-1 right-1 bg-black/70 text-white text-[10px] px-1 rounded">{rec.duration}</span>
-                    </div>
-                    <div className="py-1 flex-1">
-                      <span className="text-xs font-bold text-primary mb-1 block uppercase tracking-wider">Chapter {rec.chapter}</span>
-                      <h5 className={`font-bold text-sm leading-tight transition-colors line-clamp-2 ${isPlaying ? 'text-primary' : 'text-on_surface group-hover:text-primary'}`}>
-                        {rec.title}
-                      </h5>
-                      {isPlaying && <span className="text-xs text-primary font-semibold mt-1 block">Now Playing...</span>}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {catalog.map((course: any) => {
+          const courseProgress = progressData[course.id];
+          const totalChapters = course.modules.reduce((acc: number, mod: any) => acc + mod.chapters.length, 0);
+          
+          // Basic progress calc (mock)
+          const isStarted = !!courseProgress;
+
+          return (
+            <Link key={course.id} href={`/student/recorded/${course.id}`}>
+              <KnowledgeCard className="group overflow-hidden hover:border-primary/40 transition-all cursor-pointer h-full flex flex-col">
+                <div className="aspect-video bg-surface_container_highest relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10" />
+                  <div className="absolute bottom-4 left-4 z-20 text-white font-bold text-lg flex items-center gap-2">
+                    <PlayCircle className="w-5 h-5 text-primary" />
+                    {isStarted ? "Resume Learning" : "Start Course"}
+                  </div>
+                </div>
+                <CardBody className="p-6 flex-1 flex flex-col">
+                  <div className="flex justify-between items-start mb-3">
+                    <span className="text-[10px] font-bold text-primary uppercase tracking-widest bg-primary/10 px-2 py-0.5 rounded">
+                      {course.instructor}
+                    </span>
+                    <div className="flex items-center gap-1 text-xs text-on_surface_variant">
+                      <BookOpen className="w-3 h-3" />
+                      {course.modules.length} Modules
                     </div>
                   </div>
-                );
-              })}
-            </CardBody>
-          </KnowledgeCard>
-        </div>
+                  
+                  <h3 className="text-xl font-bold font-manrope text-on_surface group-hover:text-primary transition-colors mb-2">
+                    {course.title}
+                  </h3>
+                  <p className="text-sm text-on_surface_variant line-clamp-2 mb-6">
+                    {course.description}
+                  </p>
+
+                  <div className="mt-auto pt-6 border-t border-outline_variant/20">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-xs font-bold text-on_surface_variant">
+                        {isStarted ? "In Progress" : "Not Started"}
+                      </span>
+                      <span className="text-xs font-bold text-primary">
+                        {isStarted ? "Chapter " + courseProgress.lastChapterId.split('-').pop() : "0%"}
+                      </span>
+                    </div>
+                    <div className="h-1.5 w-full bg-surface_container_highest rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-primary transition-all duration-1000" 
+                        style={{ width: isStarted ? '65%' : '0%' }} 
+                      />
+                    </div>
+                  </div>
+                </CardBody>
+              </KnowledgeCard>
+            </Link>
+          );
+        })}
       </div>
     </div>
   );

@@ -43,6 +43,7 @@ export const ADMIN_NAV_ITEMS = [
 
 export const TEACHER_NAV_ITEMS = [
   { name: "Dashboard", href: "/teacher", icon: LayoutDashboard },
+  { name: "Courses", href: "/admin/courses", icon: BookOpen },
   { name: "Schedule", href: "/teacher/schedule", icon: Calendar },
   { name: "Start Live", href: "/teacher/live", icon: Video },
   { name: "Attendance", href: "/teacher/attendance", icon: ClipboardCheck },
@@ -68,7 +69,7 @@ export function SidebarNavigation({ role = "student" }: { role?: UserRole }) {
   if (role === "owner") items = OWNER_NAV_ITEMS;
 
   return (
-    <nav className="w-full bg-surface_container_lowest border-b border-outline_variant/20 sticky top-0 z-50">
+    <nav className="w-full bg-surface_container_lowest/70 backdrop-blur-sm border-b border-outline_variant/20 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         <div className="flex items-center justify-between h-16">
           
@@ -79,7 +80,7 @@ export function SidebarNavigation({ role = "student" }: { role?: UserRole }) {
           </div>
 
           {/* Navigation Links */}
-          <div className="flex-1 overflow-x-auto overflow-y-hidden hide-scrollbar mx-4 md:mx-8">
+          <div className="flex-1 overflow-x-auto overflow-y-hidden custom-scrollbar mx-4 md:mx-8">
             <div className="flex space-x-1 sm:space-x-2">
               {items.map((item) => {
                 const isActive = pathname === item.href;

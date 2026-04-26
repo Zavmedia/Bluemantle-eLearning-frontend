@@ -8,6 +8,8 @@ export interface RegistryData {
   batches: any[];
   schedule: any[];
   appeals: any[];
+  courseCatalog: any[];
+  userProgress: Record<string, Record<string, any>>;
 }
 
 export const serverDb = {
@@ -73,5 +75,25 @@ export const serverDb = {
       }
       serverDb.write(data);
     }
+  },
+
+  updateProgress: (studentId: string, courseId: string, moduleId: string, chapterId: string) => {
+    const data = serverDb.read();
+    if (!data.userProgress) data.userProgress = {};
+    if (!data.userProgress[studentId]) data.userProgress[studentId] = {};
+    
+    data.userProgress[studentId][courseId] = {
+      lastModuleId: moduleId,
+      lastChapterId: chapterId,
+      updatedAt: new Date().toISOString()
+    };
+    
+    serverDb.write(data);
+  },
+
+  updateCourseCatalog: (catalog: any[]) => {
+    const data = serverDb.read();
+    data.courseCatalog = catalog;
+    serverDb.write(data);
   }
 };
