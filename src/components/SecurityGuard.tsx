@@ -69,15 +69,6 @@ export function SecurityGuard({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative select-none">
       <SessionManager />
-      {/* Visual Watermark (Floating) */}
-      <div className="fixed inset-0 pointer-events-none z-[9999] opacity-[0.03] flex items-center justify-center flex-wrap gap-20 overflow-hidden">
-        {Array.from({ length: 20 }).map((_, i) => (
-          <div key={i} className="text-on_surface font-bold text-xl rotate-[-45deg] whitespace-nowrap">
-            BLUEMANTLE PROTECTED CONTENT
-          </div>
-        ))}
-      </div>
-
       {/* Security Message Toast */}
       {securityMessage && (
         <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[10000] bg-error text-on_error px-6 py-3 rounded-full shadow-ambient flex items-center gap-3 animate-bounce">
