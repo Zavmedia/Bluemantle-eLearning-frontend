@@ -160,6 +160,16 @@ export default function CourseContentEditor({ params }: { params: Promise<{ cour
                             onChange={(e) => updateChapter(mod.id, chapter.id, 'duration', e.target.value)}
                           />
                        </div>
+                       <div className="md:col-span-12">
+                          <label className="text-[10px] font-bold text-outline uppercase tracking-wider mb-1 block">Chapter Description</label>
+                          <textarea 
+                            rows={2}
+                            className="w-full bg-surface_container_lowest border border-outline_variant/20 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary/50 resize-none"
+                            placeholder="Briefly describe what this chapter covers..."
+                            value={chapter.description || ""}
+                            onChange={(e) => updateChapter(mod.id, chapter.id, 'description', e.target.value)}
+                          />
+                       </div>
                     </div>
                     <button 
                       onClick={() => deleteChapter(mod.id, chapter.id)}

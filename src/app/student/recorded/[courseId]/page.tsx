@@ -118,8 +118,7 @@ export default function CoursePlayerPage({ params }: { params: Promise<{ courseI
                 <div className="space-y-4">
                    <h4 className="font-bold">About this chapter</h4>
                    <p className="text-on_surface_variant leading-relaxed">
-                      This lecture covers the fundamental concepts required to master this section of the course. 
-                      Ensure you have your notes ready and follow along with the practical exercises shown in the video.
+                      {activeChapter.description || "This lecture covers the fundamental concepts required to master this section of the course. Ensure you have your notes ready and follow along with the practical exercises shown in the video."}
                    </p>
                 </div>
              </div>

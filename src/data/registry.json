@@ -76,18 +76,21 @@
             {
               "id": "ch-1-1",
               "title": "Introduction to Candlestick Patterns",
+              "description": "Learn the basics of candlestick charting, including how to read individual candles and understand the psychology behind price movements.",
               "duration": "15:20",
               "videoUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ"
             },
             {
               "id": "ch-1-2",
               "title": "Support and Resistance Dynamics",
+              "description": "Master the identification of key supply and demand zones to find high-probability entry and exit points.",
               "duration": "22:45",
               "videoUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ"
             },
             {
               "id": "ch-1-3",
               "title": "Volume Analysis Principles",
+              "description": "Discover how volume confirms price trends and helps identify potential reversals before they happen.",
               "duration": "18:10",
               "videoUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ"
             },
@@ -126,6 +129,18 @@
               "title": "Advanced Fibonacci Tools",
               "duration": "30:00",
               "videoUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ"
+            }
+          ]
+        },
+        {
+          "id": "mod-1777223146313",
+          "title": "moduel 3",
+          "chapters": [
+            {
+              "id": "ch-1777223163981",
+              "title": "New Chapter",
+              "duration": "00:00",
+              "videoUrl": "https://www.youtube.com/embed/"
             }
           ]
         }
