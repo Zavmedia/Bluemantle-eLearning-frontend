@@ -17,6 +17,7 @@ export function AppShell({
 }) {
   return (
     <div className="flex flex-col min-h-screen relative w-full overflow-hidden bg-surface/60">
+      <DNABackground />
       <DashboardAmbience />
       <MarketHeartbeat />
 

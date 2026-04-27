@@ -2,74 +2,88 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ShieldAlert, Lock } from "lucide-react";
+import { ShieldAlert } from "lucide-react";
 import { SessionManager } from "./SessionManager";
 
 export function SecurityGuard({ children }: { children: React.ReactNode }) {
-  const [isSecure, setIsSecure] = useState(true);
   const [securityMessage, setSecurityMessage] = useState("");
   const router = useRouter();
 
   useEffect(() => {
+    // Instant logout function - no second chances
+    const instantLogout = () => {
+      localStorage.removeItem("bluemantle_session");
+      console.clear();
+      console.log("%cSecurity Alert: Unauthorized access attempt detected.", "color: red; font-weight: bold; font-size: 16px;");
+      window.location.href = "/";
+    };
+
     // 1. Disable Right-Click
     const handleContextMenu = (e: MouseEvent) => {
       e.preventDefault();
       return false;
     };
 
-    // 2. Disable Selection & Copy
+    // 2. Disable Inspect Shortcuts
     const handleKeydown = (e: KeyboardEvent) => {
-      // Block Ctrl+C, Ctrl+V, Ctrl+U, F12, Ctrl+Shift+I, Ctrl+Shift+J
       if (
         (e.ctrlKey && (e.key === 'c' || e.key === 'u' || e.key === 's' || e.key === 'a' || e.key === 'p')) ||
         e.key === 'F12' ||
         (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C'))
       ) {
         e.preventDefault();
-        setSecurityMessage("Security Policy: This action is restricted.");
-        setTimeout(() => setSecurityMessage(""), 3000);
+        instantLogout();
         return false;
       }
     };
 
-    // 3. Tab Visibility Monitoring
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        // Blur or pause logic can go here
-        // We set a subtle state but don't kick user out immediately
-      }
-    };
-
-    // 4. DevTools Detection & Auto-Logout
-    const detectDevTools = () => {
+    // 3. DevTools Detection via Window Dimensions
+    // When DevTools opens as a docked panel, innerWidth/Height shrinks
+    const detectDevToolsBySize = () => {
       const threshold = 160;
-      const isDevToolsOpen = 
-        window.outerWidth - window.innerWidth > threshold || 
-        window.outerHeight - window.innerHeight > threshold;
-      
-      if (isDevToolsOpen) {
-         setSecurityMessage("Security Policy: Developer tools detected. Logging out...");
-         setTimeout(() => {
-           localStorage.removeItem("bluemantle_session");
-           window.location.href = "/"; // Force hard redirect to login
-         }, 1500);
+      const widthDiff = window.outerWidth - window.innerWidth > threshold;
+      const heightDiff = window.outerHeight - window.innerHeight > threshold;
+      if (widthDiff || heightDiff) {
+        instantLogout();
       }
     };
 
-    // Periodic check
-    const devToolsInterval = setInterval(detectDevTools, 2000);
+    // 4. DevTools Detection via Console Profiling
+    // DevTools intercepts toString() calls on logged objects
+    const detectDevToolsByConsole = () => {
+      const element = new Image();
+      let devtoolsOpen = false;
 
+      Object.defineProperty(element, 'id', {
+        get: () => {
+          devtoolsOpen = true;
+          return '';
+        }
+      });
+
+      console.dir(element);
+
+      if (devtoolsOpen) {
+        instantLogout();
+      }
+    };
+
+    // Run detection checks every 1.5 seconds
+    const interval = setInterval(() => {
+      detectDevToolsBySize();
+      detectDevToolsByConsole();
+    }, 1500);
+
+    // Also check on resize (devtools docking triggers resize)
     window.addEventListener("contextmenu", handleContextMenu);
     window.addEventListener("keydown", handleKeydown);
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    window.addEventListener("resize", detectDevTools);
+    window.addEventListener("resize", detectDevToolsBySize);
 
     return () => {
-      clearInterval(devToolsInterval);
+      clearInterval(interval);
       window.removeEventListener("contextmenu", handleContextMenu);
       window.removeEventListener("keydown", handleKeydown);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-      window.removeEventListener("resize", detectDevTools);
+      window.removeEventListener("resize", detectDevToolsBySize);
     };
   }, []);
 
@@ -83,38 +97,7 @@ export function SecurityGuard({ children }: { children: React.ReactNode }) {
           <span className="font-bold text-sm">{securityMessage}</span>
         </div>
       )}
-
-      {/* Security Blur Overlay (If DevTools detected or Tab hidden) */}
-      {!isSecure && (
-        <div className="fixed inset-0 z-[10001] bg-surface/80 backdrop-blur-3xl flex flex-col items-center justify-center p-8 text-center">
-          <div className="w-20 h-20 bg-error/10 text-error rounded-3xl flex items-center justify-center mb-6">
-            <Lock className="w-10 h-10" />
-          </div>
-          <h2 className="text-3xl font-manrope font-bold mb-4 text-on_surface">Security Violation Detected</h2>
-          <p className="text-on_surface_variant max-w-md mb-8">
-            Our system has detected an attempt to access developer tools or inspect the application source code. Your session has been temporarily suspended for protection.
-          </p>
-          <button 
-            onClick={() => window.location.reload()}
-            className="bg-primary text-on_primary px-8 py-3 rounded-full font-bold shadow-ambient"
-          >
-            Re-verify Session
-          </button>
-        </div>
-      )}
-
-      {/* Blur screen when tab is inactive (Premium Feel) */}
-      <div className="visibility-blur-wrapper transition-all duration-500">
-         <style jsx global>{`
-            @media (prefers-reduced-motion: no-preference) {
-              body:has(input:focus) { /* focus check */ }
-            }
-            .inactive-blur {
-              filter: blur(20px);
-            }
-         `}</style>
-         {children}
-      </div>
+      {children}
     </div>
   );
 }

@@ -97,7 +97,7 @@ const ParticleSwarm = () => {
 
 export function DNABackground() {
   return (
-    <div className="hidden dark:block fixed inset-0 w-full h-full z-0 opacity-100 pointer-events-none overflow-hidden transition-opacity duration-700">
+    <div className="fixed inset-0 w-[100vw] h-[100vh] z-[-1] opacity-30 dark:opacity-60 pointer-events-none overflow-hidden transition-opacity duration-700">
       <Canvas camera={{ position: [0, 0, 100], fov: 60 }} gl={{ alpha: true }}>
         <ParticleSwarm />
         <OrbitControls autoRotate={true} autoRotateSpeed={0.5} enableZoom={false} enablePan={false} />
