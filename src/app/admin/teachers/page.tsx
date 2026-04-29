@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { KnowledgeCard, CardHeader, CardTitle, CardBody } from "@/components/KnowledgeCard";
 import { DataTable } from "@/components/DataTable";
 import { SwitchButton3D } from "@/components/SwitchButton3D";
@@ -10,7 +10,7 @@ export default function TeacherManagement() {
   const [teachers, setTeachers] = useState<any[]>([]);
 
   // Load teachers from API on mount
-  React.useEffect(() => {
+  useEffect(() => {
     fetch("/api/institutional")
       .then(res => res.json())
       .then(data => setTeachers(data.teachers || []));
