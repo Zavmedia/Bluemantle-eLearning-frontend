@@ -105,10 +105,8 @@ export default function LoginPage() {
       <div className="hidden lg:flex flex-col justify-between w-1/2 p-16 relative">
         {/* Top Logo */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#00a2cf] to-[#00658d] flex items-center justify-center text-white font-bold text-sm font-manrope shadow-[0_0_20px_rgba(0,162,207,0.4)]">
-            BA
-          </div>
-          <span className="font-manrope font-bold text-white text-lg">Bluemantle</span>
+          <img src="/BLUEMANTLE LOGO.png" alt="Bluemantle Logo" className="h-10 w-auto object-contain drop-shadow-[0_0_15px_rgba(0,162,207,0.3)]" />
+          <span className="font-manrope font-bold text-white text-lg tracking-wide">Bluemantle</span>
         </div>
 
         {/* Center Text */}
@@ -146,10 +144,8 @@ export default function LoginPage() {
         >
           {/* Mobile Logo */}
           <div className="lg:hidden mb-8 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#00a2cf] to-[#00658d] flex items-center justify-center text-white font-bold text-sm shadow-[0_0_20px_rgba(0,162,207,0.4)]">
-              BA
-            </div>
-            <span className="font-manrope font-bold text-white text-lg">Bluemantle</span>
+            <img src="/BLUEMANTLE LOGO.png" alt="Bluemantle Logo" className="h-10 w-auto object-contain drop-shadow-[0_0_15px_rgba(0,162,207,0.3)]" />
+            <span className="font-manrope font-bold text-white text-lg tracking-wide">Bluemantle</span>
           </div>
 
           <div className="mb-8">

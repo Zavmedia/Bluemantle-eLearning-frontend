@@ -1,0 +1,215 @@
+========================================================================================
+BLUEMANTLE eLEARNING PLATFORM: A-Z MASTER BACKEND DEVELOPMENT & INTEGRATION GUIDE
+========================================================================================
+TIMELINE: 24 HOURS TO LAUNCH
+OBJECTIVE: Provide a copy-paste, step-by-step master plan for the backend developers to build the database, the APIs, and link it to the existing Next.js frontend without confusion.
+
+========================================================================================
+PHASE 1: UNDERSTANDING THE CURRENT SETUP
+========================================================================================
+Right now, the frontend is 100% complete. It has a beautiful UI, strict security, and forms.
+However, because there is no real backend yet, the frontend is saving data into a local text file (`src/data/registry.json`) using a fake server script (`src/lib/server-db.ts`).
+
+YOUR JOB AS THE BACKEND TEAM:
+1. Build a real server (Node.js/Express, Python/Django, or Java/Spring Boot).
+2. Build a real database (MongoDB or PostgreSQL).
+3. Build the APIs listed below.
+4. Tell the frontend team to swap the fake API calls with your real API URLs.
+
+========================================================================================
+PHASE 2: EXACT DATABASE SCHEMAS (What tables/collections to create)
+========================================================================================
+You must create the following database tables (or MongoDB collections).
+
+1. USERS TABLE (Stores Students, Teachers, Admins, and the Owner)
+------------------------------------------------------------------
+- `_id`: String (UUID) or ObjectId
+- `userId`: String (UNIQUE). Example: "STU-8821", "TCH-1001", "OWNER"
+- `password`: String (MUST BE HASHED using Bcrypt. Never store plain text.)
+- `role`: String (Enum: "student", "teacher", "admin", "owner")
+- `name`: String
+- `email`: String (UNIQUE)
+- `status`: String (Enum: "Active", "Pending", "Blocked", "Suspended")
+- `cohort`: String (For students, e.g., "Batch A")
+- `title`: String (For teachers, e.g., "Senior Professor")
+- `profilePicture`: String (URL to image)
+- `linkedin`: String (URL)
+- `description`: Text (Bio)
+- `deviceId`: String (Stores the device fingerprint to prevent multiple logins)
+
+2. BATCHES TABLE (Classes/Cohorts)
+------------------------------------------------------------------
+- `_id`: String (UUID)
+- `name`: String (UNIQUE, e.g., "Batch A")
+- `teacherId`: String (Foreign Key linking to Users table)
+- `maxCapacity`: Integer (e.g., 100)
+
+3. COURSES TABLE
+------------------------------------------------------------------
+- `_id`: String (UUID)
+- `title`: String
+- `description`: String
+- `thumbnail`: String (URL)
+
+========================================================================================
+PHASE 3: EXACT API ENDPOINTS TO BUILD (The A-Z Contract)
+========================================================================================
+You must build these exact HTTP endpoints. The frontend expects exactly these requests and responses.
+
+------------------------------------------------------------------
+1. AUTHENTICATION: LOGIN
+------------------------------------------------------------------
+URL: POST /api/auth/login
+Description: Verifies the User ID and Password, and returns a JWT token.
+
+[Expected Request from Frontend]
+{
+  "userId": "STU-1001",
+  "password": "password123"
+}
+
+[Expected Response to Frontend - SUCCESS]
+{
+  "success": true,
+  "token": "eyJhbGciOiJIUzI1NiIsIn...", // JWT Token
+  "user": {
+    "userId": "STU-1001",
+    "name": "John Doe",
+    "role": "student"
+  }
+}
+
+------------------------------------------------------------------
+2. ADMIN: CREATE A NEW USER (Student or Teacher)
+------------------------------------------------------------------
+URL: POST /api/users
+Description: Allows the Admin dashboard to create a new user profile.
+
+[Expected Request from Frontend]
+{
+  "name": "Jane Smith",
+  "email": "jane@academy.edu",
+  "userId": "STU-1002",
+  "password": "studentpassword",
+  "role": "student",
+  "cohort": "Batch B"
+}
+
+[Expected Response to Frontend - SUCCESS]
+{
+  "success": true,
+  "message": "User successfully created",
+  "user": {
+     "userId": "STU-1002",
+     "name": "Jane Smith"
+  }
+}
+
+------------------------------------------------------------------
+3. ADMIN: GET ALL USERS
+------------------------------------------------------------------
+URL: GET /api/users?role=student
+Description: Fetches a list of all students (or teachers if role=teacher) for the data tables.
+
+[Expected Response to Frontend]
+{
+  "success": true,
+  "users": [
+    { "name": "Jane Smith", "email": "jane@academy.edu", "userId": "STU-1002", "cohort": "Batch B", "status": "Active" }
+  ]
+}
+
+------------------------------------------------------------------
+4. TEACHER: UPDATE PROFILE
+------------------------------------------------------------------
+URL: PUT /api/teacher/profile
+Description: Allows a logged-in teacher to update their bio and links. (Requires JWT Token in headers)
+
+[Expected Request from Frontend]
+{
+  "name": "Prof. Adrian",
+  "email": "adrian@academy.edu",
+  "linkedin": "https://linkedin.com/...",
+  "description": "Senior Fellow..."
+}
+
+[Expected Response to Frontend]
+{
+  "success": true,
+  "message": "Profile updated successfully"
+}
+
+========================================================================================
+PHASE 4: STEP-BY-STEP INTEGRATION (Connecting Frontend to Backend)
+========================================================================================
+Once the backend team has built the server and it is running (e.g., on `http://localhost:5000`), here is EXACTLY how you connect it to the Bluemantle frontend.
+
+STEP 1: Delete the Mock Database Files
+- Go to `src/data/` and delete `registry.json`.
+- Go to `src/lib/` and delete `server-db.ts`.
+
+STEP 2: Point the Frontend Login to the Real Backend
+- Open `src/app/page.tsx`.
+- Find the `handleLogin` function (around line 43).
+- Replace the mock logic with a real fetch call:
+  
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, password })
+      });
+      const data = await res.json();
+      if (data.success) {
+        // Save JWT to localStorage or Cookies
+        localStorage.setItem("token", data.token);
+        
+        // Redirect based on role
+        if (data.user.role === "student") window.location.href = "/student";
+        if (data.user.role === "admin") window.location.href = "/admin";
+        if (data.user.role === "teacher") window.location.href = "/teacher";
+      } else {
+        setError(data.message || "Invalid credentials");
+      }
+    } catch (err) {
+      setError("Server connection failed");
+    }
+  };
+
+STEP 3: Point the Admin Dashboards to the Real Backend
+- Open `src/app/admin/students/page.tsx` and `src/app/admin/teachers/page.tsx`.
+- Find the `useEffect` hook that loads the data.
+- Change `fetch("/api/institutional")` to `fetch("http://localhost:5000/api/users?role=student")`.
+- Find the `handleAddStudent` / `handleRecruit` function.
+- Change the POST request URL from `"/api/institutional"` to `"http://localhost:5000/api/users"`.
+
+========================================================================================
+PHASE 5: THE MISSING GAPS TO SOLVE TODAY
+========================================================================================
+To make this platform production-ready in 24 hours, the backend team MUST solve these:
+
+1. THE DEVICE LOCK / OTP SYSTEM (Mandatory Security)
+- How to solve: When a user hits `/api/auth/login`, grab their IP address and Device User-Agent string. 
+- If the `deviceId` does not match the one stored in the database for that user, DO NOT return the JWT token. 
+- Instead, return `{ "success": false, "requireOtp": true }` and use NodeMailer (or SendGrid) to email a 6-digit code to their email. Create a second endpoint `POST /api/auth/verify-otp` to handle the code.
+
+2. PROFILE PICTURE UPLOADS (For Teachers)
+- Right now, the teacher profile just previews images in the browser.
+- How to solve: Build a `POST /api/upload` endpoint using Multer (for Node.js) or Boto3 (for Python) that accepts a `multipart/form-data` file. Save that file to AWS S3, and return the secure S3 URL to the frontend.
+
+3. SINGLE SESSION ENFORCEMENT
+- How to solve: When a user logs in, store their new JWT token in the database. If they log in from somewhere else, overwrite that token. Every API request must verify the token against the database. If it doesn't match, log them out.
+
+========================================================================================
+CONCLUSION & CHECKLIST
+========================================================================================
+- [ ] Backend: Initialize Server (Express/Django/Spring).
+- [ ] Backend: Initialize DB (Postgres/Mongo) & run schemas.
+- [ ] Backend: Build the 4 core API routes (Login, Create User, Get Users, Update Profile).
+- [ ] Frontend: Delete mock files (`registry.json`, `server-db.ts`).
+- [ ] Frontend: Update `page.tsx` fetch URLs to point to Backend.
+- [ ] Frontend: Update Admin `page.tsx` fetch URLs to point to Backend.
+
+This is the exact blueprint. Do not overcomplicate it. Build the APIs exactly as listed, match the JSON structures, and the platform will function flawlessly.

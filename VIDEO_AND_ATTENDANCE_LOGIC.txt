@@ -1,0 +1,97 @@
+========================================================================================
+BLUEMANTLE eLEARNING PLATFORM: VIDEO HOSTING & ATTENDANCE LOGIC
+========================================================================================
+This document explains how the backend team should handle Live Classes, Recorded 
+Videos, and the automatic Attendance Grading system.
+
+========================================================================================
+1. YOUTUBE VIDEO SECURITY (UNLISTED vs PRIVATE)
+========================================================================================
+Do NOT use "Private" YouTube videos. Private videos require you to manually invite 
+every single student's Google account to view the video. This is unmanageable.
+
+SOLUTION: Use "Unlisted" YouTube Videos.
+- When a teacher uploads a recorded class to YouTube, they must set it to "Unlisted".
+- This means it will not show up in YouTube search or on their channel. The only 
+  way to watch it is if you have the direct link.
+
+HOW IT IS SECURED:
+- The teacher pastes the Unlisted link into the Bluemantle Admin/Teacher portal.
+- The Bluemantle frontend embeds this video directly into the platform.
+- Because we have STRICTLY BLOCKED Developer Tools (F12) and Right-Clicking on 
+  the frontend, students CANNOT inspect the page to copy the underlying YouTube 
+  link. They are forced to watch it inside the portal.
+- This provides a very high level of security without the massive cost of enterprise 
+  video hosting.
+
+========================================================================================
+2. THE LIVE CLASS & RECORDING WORKFLOW (Step-by-Step for Backend)
+========================================================================================
+
+PHASE 1: THE LIVE CLASS
+---------------------------------
+1. A Teacher schedules a Live Class and provides the Zoom/Meet link.
+2. The Backend exposes a `POST /api/classes/join-live` endpoint.
+3. When a student clicks the "Join Live" button during the scheduled class time, 
+   the frontend hits this endpoint.
+4. The Backend marks that specific student's attendance as "Present" for that class.
+
+PHASE 2: UPLOADING THE RECORDING
+---------------------------------
+1. After the Live Class finishes, the Teacher records the video via Zoom.
+2. The Teacher uploads it to YouTube as "Unlisted".
+3. The Teacher logs into Bluemantle, selects that past Live Class, and pastes 
+   the YouTube link.
+4. The Backend updates the Class record in the database, changing its state 
+   from "Live" to "Recorded", and stores the YouTube URL.
+
+PHASE 3: THE 7-DAY GRACE PERIOD (LATE ATTENDANCE)
+---------------------------------
+Requirement: If a student misses the Live Class but watches the Recorded Class 
+within 7 days, their attendance changes from "Absent" to "Late".
+
+HOW TO BUILD THIS LOGIC:
+1. Create an endpoint: `POST /api/classes/watch-recording`
+2. When a student clicks "Play" on a recorded class, the frontend triggers this API.
+3. The Backend receives the `studentId` and the `classId`.
+4. The Backend runs the following logic check:
+   
+   - Step A: Did this student already attend the Live Class? 
+     (If Yes, ignore. They are already "Present").
+   
+   - Step B: Calculate the time difference between the original Live Class Date 
+             and Today's Date.
+             
+   - Step C: Is the difference LESS THAN OR EQUAL TO 7 DAYS?
+             If YES -> Update Attendance to "Late".
+             If NO  -> Leave Attendance as "Absent".
+
+========================================================================================
+3. DATABASE SCHEMA ADDITIONS REQUIRED
+========================================================================================
+
+To make this work, the backend needs a robust ATTENDANCE table and a CLASSES table.
+
+CLASSES TABLE:
+- `id`: UUID
+- `title`: String
+- `scheduledDate`: DateTime (When the live class happens)
+- `zoomLink`: String (For live viewing)
+- `recordingUrl`: String (The Unlisted YouTube link, initially null)
+- `status`: Enum ("Scheduled", "Live", "Completed")
+
+ATTENDANCE TABLE:
+- `id`: UUID
+- `classId`: Foreign Key to Classes Table
+- `studentId`: Foreign Key to Users Table
+- `status`: Enum ("Present", "Late", "Absent")
+- `timestamp`: DateTime (When they joined live or watched the recording)
+
+========================================================================================
+SUMMARY FOR BACKEND DEVS:
+========================================================================================
+- Only store Unlisted YouTube URLs. Do not send them raw to the frontend, send 
+  them via API payload so the React player can embed them.
+- Build the `join-live` endpoint to mark "Present".
+- Build the `watch-recording` endpoint to calculate the 7-day delta and mark "Late".
+- Default everyone to "Absent" until one of those two endpoints is triggered.
