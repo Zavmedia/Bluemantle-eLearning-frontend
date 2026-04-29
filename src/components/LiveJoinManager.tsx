@@ -9,26 +9,11 @@ export function LiveJoinManager() {
   const [micActive, setMicActive] = useState(false);
   const [cameraActive, setCameraActive] = useState(false);
 
-  const handleJoin = async () => {
+  const handleJoin = () => {
     // In a real app this would route directly into the live video stream provider (e.g. Zoom SDK, Agora, WebRTC)
     console.log("Joining with Camera:", cameraActive, "Mic:", micActive);
-    
-    // Simulate Backend API Call for Attendance ("Present")
-    try {
-      await fetch("/api/institutional", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "joinLiveClass",
-          payload: { studentId: "STU-8821", classId: "live-batch-A", status: "Present" }
-        })
-      });
-    } catch (e) {
-      console.error("Failed to capture attendance", e);
-    }
-
     setIsPreJoinOpen(false);
-    alert("Live Session Joined. You have entered the main waiting room. Attendance marked as Present.");
+    alert("Live Session Joined. You have entered the main waiting room.");
   };
 
   return (

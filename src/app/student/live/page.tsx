@@ -1,3 +1,4 @@
+"use client";
 import { KnowledgeCard, CardHeader, CardTitle, CardBody } from "@/components/KnowledgeCard";
 import { Clock } from "lucide-react";
 import { LiveJoinManager } from "@/components/LiveJoinManager";
@@ -34,24 +35,68 @@ export default function LiveClassPage() {
         </div>
       </KnowledgeCard>
 
-      <h3 className="text-2xl font-manrope font-bold mt-12 mb-4">Upcoming Schedule</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <h3 className="text-2xl font-manrope font-bold mt-12 mb-4">Past Recorded Live Classes</h3>
+      <div className="space-y-4">
         {[
-          { title: "Macroeconomics Recap", time: "Tomorrow, 2:00 PM", prof: "Dr. Hassan" },
-          { title: "Algorithmic Trading Intro", time: "Friday, 10:00 AM", prof: "P. Sharma" }
-        ].map((c, i) => (
-          <KnowledgeCard key={i}>
-            <div className="p-4 flex justify-between items-center">
-              <div>
-                <h4 className="font-bold text-on_surface">{c.title}</h4>
-                <p className="text-sm text-on_surface_variant">{c.time} • {c.prof}</p>
+          { 
+            title: "Advanced Derivatives & Hedging", 
+            date: "2026-04-25", 
+            prof: "Sarah Chen", 
+            youtubeId: "dQw4w9WgXcQ", 
+            wasAttended: false 
+          },
+          { 
+            title: "Market Microstructure Analysis", 
+            date: "2026-04-20", 
+            prof: "Dr. Hassan", 
+            youtubeId: "dQw4w9WgXcQ", 
+            wasAttended: true 
+          }
+        ].map((c, i) => {
+          const classDate = new Date(c.date);
+          const now = new Date();
+          const daysDiff = Math.floor((now.getTime() - classDate.getTime()) / (1000 * 3600 * 24));
+          const isWithinGracePeriod = daysDiff <= 7;
+          
+          return (
+            <KnowledgeCard key={i}>
+              <div className="p-6 flex flex-col md:flex-row gap-6 items-center justify-between">
+                <div className="flex gap-4 items-center">
+                  <div className="w-16 h-16 bg-surface_container_high rounded-xl flex items-center justify-center overflow-hidden border border-outline_variant/20">
+                     <div className="text-primary font-bold text-xs">REPLAY</div>
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-lg text-on_surface">{c.title}</h4>
+                    <p className="text-sm text-on_surface_variant">Held on {c.date} • {c.prof}</p>
+                    <div className="mt-2 flex gap-2">
+                       {c.wasAttended ? (
+                         <span className="text-[10px] font-bold uppercase bg-primary/10 text-primary px-2 py-1 rounded">Attended</span>
+                       ) : isWithinGracePeriod ? (
+                         <span className="text-[10px] font-bold uppercase bg-warning/10 text-warning px-2 py-1 rounded">Missed (Watch now for 'Late' Attendance)</span>
+                       ) : (
+                         <span className="text-[10px] font-bold uppercase bg-error/10 text-error px-2 py-1 rounded">Absent (Grace Period Expired)</span>
+                       )}
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  <button className="btn-premium py-2 px-6 text-sm">
+                    Watch Recording
+                  </button>
+                  {!c.wasAttended && isWithinGracePeriod && (
+                    <button 
+                      onClick={() => alert("Attendance marked as 'Late'. Logic needs to be linked to backend /api/attendance.")}
+                      className="text-xs font-bold text-secondary border border-secondary px-4 py-2 rounded-full hover:bg-secondary hover:text-on_secondary transition-all"
+                    >
+                      Mark Attendance
+                    </button>
+                  )}
+                </div>
               </div>
-              <button className="text-sm font-bold text-primary border border-primary px-4 py-2 rounded-full hover:bg-primary hover:text-on_primary transition-colors">
-                Register
-              </button>
-            </div>
-          </KnowledgeCard>
-        ))}
+            </KnowledgeCard>
+          );
+        })}
       </div>
     </div>
   );

@@ -64,16 +64,6 @@ export default function CoursePlayerPage({ params }: { params: Promise<{ courseI
         payload: { studentId, courseId, moduleId: modId, chapterId: chapter.id }
       })
     });
-
-    // Simulate Backend API Call for Attendance ("watchRecording")
-    // Backend will determine if it's within 7 days to mark "Late", otherwise they stay "Absent".
-    fetch("/api/institutional", {
-      method: "POST",
-      body: JSON.stringify({
-        action: "watchRecording",
-        payload: { studentId, chapterId: chapter.id }
-      })
-    }).catch(console.error);
   };
 
   if (!data || !activeChapter) return <div className="h-screen flex items-center justify-center animate-pulse">Initializing Player...</div>;
