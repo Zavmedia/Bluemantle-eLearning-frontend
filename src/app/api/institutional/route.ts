@@ -42,6 +42,14 @@ export async function POST(request: Request) {
       serverDb.updateCourseCatalog(payload.catalog);
       return NextResponse.json({ success: true, message: "Catalog Updated" });
 
+    case "createUser":
+      const newUser = serverDb.createUser(payload.user);
+      return NextResponse.json({ success: true, message: "User Created", user: newUser });
+
+    case "deleteUser":
+      serverDb.deleteUser(payload.userId, payload.role);
+      return NextResponse.json({ success: true, message: "User Deleted" });
+
     default:
       return NextResponse.json({ success: false, message: "Invalid Action" }, { status: 400 });
   }

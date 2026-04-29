@@ -7,21 +7,20 @@ import { SwitchButton3D } from "@/components/SwitchButton3D";
 import { GraduationCap, UserPlus, Search, Filter, MoreVertical, Star, BookOpen, Activity, X } from "lucide-react";
 
 export default function TeacherManagement() {
-  const initialTeachers = [
-    { id: 1, name: "Dr. Sarah Jenkins", role: "Senior Professor of Data Science", email: "sarah.j@academy.edu", batches: 4, rating: 4.9, status: "Active" },
-    { id: 2, name: "Prof. Marcus Thorne", role: "Lead Instructor, Quantum Computing", email: "m.thorne@academy.edu", batches: 3, rating: 4.8, status: "Active" },
-    { id: 3, name: "Elena Rodriguez", role: "Dept. Head, UX/UI Design", email: "e.rodriguez@academy.edu", batches: 2, rating: 5.0, status: "Active" },
-    { id: 4, name: "Julian Vance", role: "Assistant Professor, Cyber Security", email: "j.vance@academy.edu", batches: 5, rating: 4.7, status: "Active" },
-    { id: 5, name: "Dr. Alan Turing III", role: "Special Guest Lecturer", email: "a.turing@academy.edu", batches: 1, rating: 4.9, status: "Active" },
-  ];
+  const [teachers, setTeachers] = useState<any[]>([]);
 
-  const [teachers, setTeachers] = useState(initialTeachers);
+  // Load teachers from API on mount
+  React.useEffect(() => {
+    fetch("/api/institutional")
+      .then(res => res.json())
+      .then(data => setTeachers(data.teachers || []));
+  }, []);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   
   // Form State
-  const [newFaculty, setNewFaculty] = useState({ name: "", role: "", email: "" });
+  const [newFaculty, setNewFaculty] = useState({ name: "", role: "", email: "", userId: "", password: "" });
 
   const filteredTeachers = useMemo(() => {
     return teachers.filter(t => 
@@ -31,24 +30,41 @@ export default function TeacherManagement() {
     );
   }, [teachers, searchQuery]);
 
-  const handleRecruit = (e: React.FormEvent) => {
+  const handleRecruit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newFaculty.name || !newFaculty.email) return;
+    if (!newFaculty.name || !newFaculty.email || !newFaculty.userId || !newFaculty.password) return alert("Please fill all required fields.");
 
-    setTeachers([
-      ...teachers,
-      {
-        id: Date.now(),
-        name: newFaculty.name,
-        role: newFaculty.role || "Standard Faculty",
-        email: newFaculty.email,
-        batches: 0,
-        rating: 0.0,
-        status: "Active"
+    try {
+      const res = await fetch("/api/institutional", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "createUser",
+          payload: {
+            user: {
+              name: newFaculty.name,
+              email: newFaculty.email,
+              userId: newFaculty.userId,
+              password: newFaculty.password,
+              role: "teacher",
+              title: newFaculty.role || "Standard Faculty",
+              batches: 0,
+              rating: 0.0,
+            }
+          }
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTeachers([...teachers, data.user]);
+        setNewFaculty({ name: "", role: "", email: "", userId: "", password: "" });
+        setIsAddModalOpen(false);
+      } else {
+        alert("Failed to recruit faculty");
       }
-    ]);
-    setNewFaculty({ name: "", role: "", email: "" });
-    setIsAddModalOpen(false);
+    } catch (err) {
+      alert("Error recruiting faculty");
+    }
   };
 
   const removeFaculty = (id: number) => {
@@ -264,6 +280,17 @@ export default function TeacherManagement() {
                   className="w-full bg-surface_container_highest border border-outline_variant/30 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary/50 text-on_surface transition-colors"
                   placeholder="name@academy.edu" 
                 />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-outline uppercase tracking-wider mb-2">User ID (Login)</label>
+                  <input required type="text" value={newFaculty.userId} onChange={(e) => setNewFaculty({ ...newFaculty, userId: e.target.value })} className="w-full bg-surface_container_highest border border-outline_variant/30 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-primary/50 text-on_surface transition-colors" placeholder="TCH-1001" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-outline uppercase tracking-wider mb-2">Password (Login)</label>
+                  <input required type="text" value={newFaculty.password} onChange={(e) => setNewFaculty({ ...newFaculty, password: e.target.value })} className="w-full bg-surface_container_highest border border-outline_variant/30 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-primary/50 text-on_surface transition-colors" placeholder="teacher123" />
+                </div>
               </div>
               <div>
                 <label className="block text-xs font-bold text-outline uppercase tracking-wider mb-2">Assigned Role & Department</label>

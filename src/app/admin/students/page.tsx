@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { KnowledgeCard, CardHeader, CardTitle, CardBody } from "@/components/KnowledgeCard";
 import { DataTable } from "@/components/DataTable";
 import { SwitchButton3D } from "@/components/SwitchButton3D";
@@ -8,14 +8,15 @@ import { Users, UserPlus, Search, Filter, MoreVertical, BadgeCheck, X, Activity,
 import { PremiumSearch } from "@/components/PremiumSearch";
 
 export default function StudentManagement() {
-  const [students, setStudents] = useState([
-    { name: "Elena Rodriguez", email: "elena.rodriguez@academy.edu", id: "STU-9284", cohort: "Advanced AI", status: "Active" },
-    { name: "Julian Chen", email: "j.chen@academy.edu", id: "STU-8821", cohort: "Economics", status: "Active" },
-    { name: "Markus Vance", email: "m.vance@academy.edu", id: "STU-7732", cohort: "Digital Arts", status: "Pending" },
-    { name: "Sarah Jenkins", email: "sarah.j@academy.edu", id: "STU-6610", cohort: "Batch A", status: "Active" },
-    { name: "David Miller", email: "d.miller@academy.edu", id: "STU-5541", cohort: "Batch B", status: "Active" },
-    { name: "Elena Kostic", email: "e.kostic@academy.edu", id: "STU-4412", cohort: "Batch C", status: "Blocked" },
-  ]);
+  const [students, setStudents] = useState<any[]>([]);
+
+  // Load students from API on mount
+  useEffect(() => {
+    fetch("/api/institutional")
+      .then(res => res.json())
+      .then(data => setStudents(data.students || []));
+  }, []);
+
 
   // Master Batch List with max capacity constants
   const [batches] = useState([
@@ -46,27 +47,53 @@ export default function StudentManagement() {
     return stats;
   }, [students, batches]);
 
-  // Modals Data
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newStudent, setNewStudent] = useState({ name: "", email: "", cohort: "", status: "Active" });
+  const [newStudent, setNewStudent] = useState({ name: "", email: "", userId: "", password: "", cohort: "", status: "Active" });
 
   const [isSwitchModalOpen, setIsSwitchModalOpen] = useState(false);
   const [studentToSwitch, setStudentToSwitch] = useState<any>(null);
   const [newBatchSelection, setNewBatchSelection] = useState("");
 
-  const handleAddStudent = (e: React.FormEvent) => {
+  const handleAddStudent = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newStudent.cohort) return alert("Must assign a valid cohort.");
+    if (!newStudent.userId || !newStudent.password) return alert("Must provide User ID and Password.");
 
     // Safety check against capacity
     if (batchStats[newStudent.cohort] >= 100) {
       return alert("Strict Blockage: This batch is at 100/100 capacity. Assignment blocked.");
     }
 
-    const id = `STU-${Math.floor(1000 + Math.random() * 9000)}`;
-    setStudents([{ ...newStudent, id }, ...students]);
-    setIsModalOpen(false);
-    setNewStudent({ name: "", email: "", cohort: "", status: "Active" });
+    try {
+      const res = await fetch("/api/institutional", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "createUser",
+          payload: {
+            user: {
+              name: newStudent.name,
+              email: newStudent.email,
+              userId: newStudent.userId,
+              password: newStudent.password,
+              role: "student",
+              cohort: newStudent.cohort,
+              batch: newStudent.cohort,
+            }
+          }
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setStudents([data.user, ...students]);
+        setIsModalOpen(false);
+        setNewStudent({ name: "", email: "", userId: "", password: "", cohort: "", status: "Active" });
+      } else {
+        alert("Failed to create user");
+      }
+    } catch (err) {
+      alert("Error creating user");
+    }
   };
 
   const handleSwitchBatch = (e: React.FormEvent) => {
@@ -239,6 +266,17 @@ export default function StudentManagement() {
               <div>
                 <label className="block text-xs font-bold text-outline uppercase tracking-wider mb-2">Email Address</label>
                 <input required type="email" value={newStudent.email} onChange={(e) => setNewStudent({ ...newStudent, email: e.target.value })} className="w-full bg-surface_container_highest border border-outline_variant/30 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-primary/50 text-on_surface transition-colors" placeholder="john@academy.edu" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-outline uppercase tracking-wider mb-2">User ID (For Login)</label>
+                  <input required type="text" value={newStudent.userId} onChange={(e) => setNewStudent({ ...newStudent, userId: e.target.value })} className="w-full bg-surface_container_highest border border-outline_variant/30 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-primary/50 text-on_surface transition-colors" placeholder="STU-1001" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-outline uppercase tracking-wider mb-2">Password (For Login)</label>
+                  <input required type="text" value={newStudent.password} onChange={(e) => setNewStudent({ ...newStudent, password: e.target.value })} className="w-full bg-surface_container_highest border border-outline_variant/30 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-primary/50 text-on_surface transition-colors" placeholder="password123" />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">

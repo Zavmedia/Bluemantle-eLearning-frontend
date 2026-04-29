@@ -27,6 +27,10 @@ export const PROFILE_MENU_ITEMS = [
   { name: "Attendance", href: "/student/attendance", icon: ClipboardCheck },
 ];
 
+export const TEACHER_PROFILE_MENU_ITEMS = [
+  { name: "Profile Settings", href: "/teacher/profile", icon: UserCircle },
+];
+
 export const ADMIN_NAV_ITEMS = [
   { name: "Overview",    href: "/admin",              icon: LayoutDashboard },
   { name: "Batches",     href: "/admin/batches",      icon: Layers          },
@@ -123,6 +127,16 @@ export function SidebarNavigation({ role = "student" }: { role?: UserRole }) {
                   <p className="text-xs text-on_surface_variant capitalize">{role}</p>
                 </div>
                 {role === "student" && PROFILE_MENU_ITEMS.map((item) => (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className="flex items-center gap-3 px-4 py-2 text-sm text-on_surface_variant hover:bg-surface_container_high hover:text-primary transition-colors"
+                  >
+                    <item.icon className="w-4 h-4" />
+                    {item.name}
+                  </Link>
+                ))}
+                {role === "teacher" && TEACHER_PROFILE_MENU_ITEMS.map((item) => (
                   <Link
                     key={item.name}
                     href={item.href}

@@ -5,6 +5,8 @@ const DB_PATH = path.join(process.cwd(), "src/data/registry.json");
 
 export interface RegistryData {
   students: any[];
+  teachers: any[];
+  admins: any[];
   batches: any[];
   schedule: any[];
   appeals: any[];
@@ -19,7 +21,7 @@ export const serverDb = {
       return JSON.parse(data);
     } catch (error) {
       console.error("Error reading registry:", error);
-      return { students: [], batches: [], schedule: [], appeals: [] };
+      return { students: [], teachers: [], admins: [], batches: [], schedule: [], appeals: [], courseCatalog: [], userProgress: {} };
     }
   },
 
@@ -94,6 +96,39 @@ export const serverDb = {
   updateCourseCatalog: (catalog: any[]) => {
     const data = serverDb.read();
     data.courseCatalog = catalog;
+    serverDb.write(data);
+  },
+
+  createUser: (user: any) => {
+    const data = serverDb.read();
+    const newUser = {
+      ...user,
+      id: user.userId,
+      status: "active",
+      createdAt: new Date().toISOString(),
+    };
+    if (user.role === "teacher") {
+      if (!data.teachers) data.teachers = [];
+      data.teachers.push(newUser);
+    } else if (user.role === "admin") {
+      if (!data.admins) data.admins = [];
+      data.admins.push(newUser);
+    } else {
+      data.students.push({ ...newUser, attendance: 0, progress: 0 });
+    }
+    serverDb.write(data);
+    return newUser;
+  },
+
+  deleteUser: (userId: string, role: string) => {
+    const data = serverDb.read();
+    if (role === "teacher") {
+      data.teachers = (data.teachers || []).filter((u: any) => u.id !== userId && u.userId !== userId);
+    } else if (role === "admin") {
+      data.admins = (data.admins || []).filter((u: any) => u.id !== userId && u.userId !== userId);
+    } else {
+      data.students = data.students.filter((u: any) => u.id !== userId && u.userId !== userId);
+    }
     serverDb.write(data);
   }
 };

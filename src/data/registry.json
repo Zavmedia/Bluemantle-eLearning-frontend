@@ -2,8 +2,11 @@
   "students": [
     {
       "id": "STU-8821",
+      "userId": "STU-8821",
       "name": "John Doe",
       "email": "john@bluemantle.com",
+      "password": "student123",
+      "role": "student",
       "status": "active",
       "batch": "Batch A",
       "attendance": 91.6,
@@ -60,6 +63,29 @@
       "teacher": "Sarah Chen",
       "batch": "Batch A",
       "topic": "Macroeconomics Recap"
+    }
+  ],
+  "teachers": [
+    {
+      "id": "TCH-001",
+      "userId": "TCH-001",
+      "name": "Sarah Chen",
+      "email": "sarah@bluemantle.com",
+      "password": "teacher123",
+      "role": "teacher",
+      "status": "active",
+      "batch": "Batch A"
+    }
+  ],
+  "admins": [
+    {
+      "id": "ADM-001",
+      "userId": "ADM-001",
+      "name": "Platform Admin",
+      "email": "admin@bluemantle.com",
+      "password": "admin2026",
+      "role": "admin",
+      "status": "active"
     }
   ],
   "appeals": [],
@@ -173,8 +199,9 @@
   "userProgress": {
     "STU-8821": {
       "course-1": {
-        "lastModuleId": "mod-2",
-        "lastChapterId": "ch-2-4"
+        "lastModuleId": "mod-1777223146313",
+        "lastChapterId": "ch-1777223163981",
+        "updatedAt": "2026-04-29T02:42:51.420Z"
       }
     }
   }
